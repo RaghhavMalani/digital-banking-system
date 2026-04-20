@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('OTP Verification - DigiBank')}"></head>
+<body>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h1><i class="fas fa-shield-halved"></i> Security Check</h1>
+        <p class="subtitle">Two-Factor Authentication</p>
+
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-circle-exclamation"></i> <span th:text="${error}"></span>
+        </div>
+
+        <div class="alert alert-info" th:if="${generatedOtp}">
+            <i class="fas fa-info-circle"></i> <strong>Testing Mode:</strong> Your OTP is 
+            <span style="font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;" th:text="${generatedOtp}"></span>
+        </div>
+
+        <form th:action="@{/auth/otp}" method="post">
+            <div class="form-group">
+                <label for="otp">Enter 6-digit OTP sent to your registered email/phone</label>
+                <input type="text" id="otp" name="otp" class="form-control" maxlength="6" pattern="\d{6}" 
+                       placeholder="XXXXXX" required autofocus autocomplete="one-time-code" />
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 15px;">
+                <i class="fas fa-check-circle"></i> Verify OTP
+            </button>
+        </form>
+        
+        <div class="auth-link" style="margin-top: 20px;">
+            <form th:action="@{/auth/logout}" method="get" style="display:inline;">
+                <button type="submit" class="btn btn-secondary" style="width:100%; border: none; background: none; color: var(--danger-color); text-decoration: underline; padding: 0;">
+                    Cancel and Return to Login
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

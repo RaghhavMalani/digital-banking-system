@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Apply for Loan - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-file-signature"></i> Apply for Loan</h1>
+            <a th:href="@{/loans}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-file-contract"></i> Application Form</div>
+            <form th:action="@{/loans/apply}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="loanType">Loan Type</label>
+                        <select id="loanType" name="loanType" class="form-control" required>
+                            <option value="">Select loan type</option>
+                            <option value="HOME">Home Loan</option>
+                            <option value="CAR">Car Loan</option>
+                            <option value="EDUCATION">Education Loan</option>
+                            <option value="PERSONAL">Personal Loan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="accountId">Disbursement Account</label>
+                        <select id="accountId" name="accountId" class="form-control" required>
+                            <option value="">Select account</option>
+                            <option th:each="acc : ${accounts}"
+                                    th:value="${acc.id}"
+                                    th:text="${acc.accountType + ' - ' + acc.accountNumber}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Loan Amount (₹)</label>
+                        <input type="number" id="amount" name="amount" class="form-control" min="10000" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenureMonths">Tenure (Months)</label>
+                        <select id="tenureMonths" name="tenureMonths" class="form-control" required>
+                            <option value="">Select tenure</option>
+                            <option value="12">12 Months (1 Year)</option>
+                            <option value="24">24 Months (2 Years)</option>
+                            <option value="36">36 Months (3 Years)</option>
+                            <option value="60">60 Months (5 Years)</option>
+                            <option value="120">120 Months (10 Years)</option>
+                            <option value="240">240 Months (20 Years)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="monthlyIncome">Monthly Income (₹)</label>
+                    <input type="number" id="monthlyIncome" name="monthlyIncome" class="form-control" min="5000" required/>
+                </div>
+
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; padding: 1rem; background: var(--gray-50); border: var(--border);">
+                    <strong><i class="fas fa-circle-info"></i> Approval Criteria:</strong><br/>
+                    Credit score (min 650) and verified KYC required for approval.
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Submit Application</button>
+            </form>
+        </div>
+    </main>
+</div>
+</body>
+</html>

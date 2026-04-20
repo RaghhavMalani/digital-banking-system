@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-building-columns"></i>
+        <h2>DigiBank</h2>
+    </div>
+    <div class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <a th:href="@{/dashboard}"
+           th:classappend="${currentUri != null and currentUri.startsWith('/dashboard')} ? 'active' : ''">
+            <i class="fas fa-house"></i> Dashboard
+        </a>
+        <a th:href="@{/profile}"
+           th:classappend="${currentUri != null and currentUri.startsWith('/profile')} ? 'active' : ''">
+            <i class="fas fa-user"></i> Profile &amp; KYC
+        </a>
+
+        <div class="sidebar-section">Banking</div>
+        <a th:href="@{/transfers}"
+           th:classappend="${currentUri != null and currentUri == '/transfers'} ? 'active' : ''">
+            <i class="fas fa-money-bill-transfer"></i> Fund Transfer
+        </a>
+        <a th:href="@{/transfers/beneficiaries}"
+           th:classappend="${currentUri != null and currentUri.contains('beneficiaries')} ? 'active' : ''">
+            <i class="fas fa-users"></i> Beneficiaries
+        </a>
+
+        <div class="sidebar-section">Investments</div>
+        <a th:href="@{/deposits}"
+           th:classappend="${currentUri != null and currentUri.startsWith('/deposits')} ? 'active' : ''">
+            <i class="fas fa-piggy-bank"></i> Deposits
+        </a>
+        <a th:href="@{/loans}"
+           th:classappend="${currentUri != null and currentUri.startsWith('/loans') and !currentUri.contains('services')} ? 'active' : ''">
+            <i class="fas fa-file-invoice-dollar"></i> Loans
+        </a>
+
+        <div class="sidebar-section">Services</div>
+        <a th:href="@{/statements}"
+           th:classappend="${currentUri != null and currentUri.startsWith('/statements')} ? 'active' : ''">
+            <i class="fas fa-list"></i> Statements
+        </a>
+        <a th:href="@{/loans/services}"
+           th:classappend="${currentUri != null and currentUri.contains('services')} ? 'active' : ''">
+            <i class="fas fa-headset"></i> Service Requests
+        </a>
+
+        <div class="sidebar-section">Account</div>
+        <a th:href="@{/auth/logout}">
+            <i class="fas fa-arrow-right-from-bracket"></i> Logout
+        </a>
+    </div>
+</nav>
+</body>
+</html>

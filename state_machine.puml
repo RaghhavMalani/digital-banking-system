@@ -1,0 +1,24 @@
+@startuml
+
+[*] -> Idle
+
+Idle --> Login : Open App / Website
+Login --> Login : Invalid Credentials
+Login --> Authenticated : Valid Credentials
+Authenticated --> Dashboard
+
+Dashboard --> Transaction : Transfer / Pay Bill
+Dashboard --> AccountManagement : Update Profile / Change Password
+Dashboard --> ViewBalance : Select "View Balance"
+Dashboard --> Logout : Logout Request
+
+Transaction --> Dashboard : Success
+Transaction --> Error : Failure
+
+Error --> Dashboard : Retry
+Error --> Login : Session Expired
+Dashboard --> Login : Session Expired
+
+Logout --> Idle
+
+@enduml

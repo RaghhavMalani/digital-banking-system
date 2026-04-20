@@ -1,0 +1,65 @@
+@startuml
+
+class "Bank System" as BankSystem {
+  +authenticateUser()
+  +processRequest()
+}
+
+class User {
+  -userID: int
+  -name: String
+  -email: String
+  -password: String
+  +login()
+  +logout()
+  +updateProfile()
+}
+
+class Authentication {
+  +validateCredential(email, password)
+  +generateOTP()
+  +verifyOTP()
+}
+
+class Session {
+  -sessionID: int
+  -loginTime: DateTime
+  -expireTime: DateTime
+  +createSession()
+  +invalidateSession()
+  +isSessionActive()
+}
+
+class AccountManagement {
+  +changePassword()
+  +updateDetails()
+}
+
+class Account {
+  -accountNumber: int
+  -balance: double
+  -accountType: String
+  +viewBalance()
+  +debit(amount)
+  +credit(amount)
+}
+
+class Transaction {
+  -transactionID: int
+  -amount: double
+  -type: String
+  -status: String
+  -date: Date
+  +processTransaction()
+  +validateTransaction()
+}
+
+BankSystem --> User
+BankSystem --> Account
+User --> Account
+User --> Authentication
+User --> Session
+User --> AccountManagement
+Account --> Transaction
+
+@enduml

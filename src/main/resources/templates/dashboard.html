@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Dashboard - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-house"></i> Dashboard</h1>
+            <span>Welcome, <strong th:text="${user.fullName}">User</strong></span>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a th:href="@{/receive}" class="quick-action"><i class="fas fa-qrcode"></i> Receive Money</a>
+            <a th:href="@{/transfers}" class="quick-action"><i class="fas fa-paper-plane"></i> Send Money</a>
+            <a th:href="@{/deposits/create}" class="quick-action"><i class="fas fa-plus-circle"></i> New Deposit</a>
+            <a th:href="@{/loans/apply}" class="quick-action"><i class="fas fa-file-signature"></i> Apply Loan</a>
+            <a th:href="@{/statements}" class="quick-action"><i class="fas fa-file-lines"></i> Statements</a>
+            <a th:href="@{/statements/all}" class="quick-action"><i class="fas fa-list"></i> All Transactions</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="label">Total Balance</div>
+                <div class="value" th:text="'₹' + ${#numbers.formatDecimal(totalBalance, 1, 2)}">₹0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Active Accounts</div>
+                <div class="value" th:text="${#lists.size(accounts)}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Member Since</div>
+                <div class="value" th:text="${#temporals.format(user.createdAt, 'MMM yyyy')}">Jan 2026</div>
+            </div>
+        </div>
+
+        <!-- Accounts Table -->
+        <div class="card">
+            <div class="card-header justify-between">
+                <span><i class="fas fa-wallet"></i> Your Accounts</span>
+                <form th:action="@{/accounts/open}" method="post" class="flex gap-1 items-center">
+                    <select name="fundingAccountId" class="form-control" style="width: auto;" required>
+                        <option value="">Select funding account...</option>
+                        <option th:each="acc : ${accounts}" th:value="${acc.id}" th:text="${acc.accountType + ' - ' + acc.accountNumber}"></option>
+                    </select>
+                    <input type="number" name="initialDeposit" class="form-control" placeholder="Initial Deposit (Min ₹10,000)" min="10000" style="width: 220px;" required />
+                    <select name="accountType" class="form-control" style="width: auto;" required>
+                        <option value="SAVINGS">Savings</option>
+                        <option value="CURRENT">Current</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Open</button>
+                </form>
+            </div>
+
+            <div th:if="${#lists.isEmpty(accounts)}" class="empty-state">
+                <i class="fas fa-wallet"></i>
+                <p>No accounts found. Open your first account to get started.</p>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(accounts)}">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Interest</th>
+                        <th class="text-right">Balance</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="acc : ${accounts}">
+                        <td><code th:text="${acc.accountNumber}">0000</code></td>
+                        <td th:text="${acc.accountType}">SAVINGS</td>
+                        <td>
+                            <span class="badge" th:text="${acc.status}">ACTIVE</span>
+                        </td>
+                        <td th:text="${acc.interestRate + '%'}">4%</td>
+                        <td class="text-right">
+                            <strong th:text="'₹' + ${#numbers.formatDecimal(acc.balance, 1, 2)}">₹0.00</strong>
+                        </td>
+                        <td class="text-right">
+                            <form th:action="@{/accounts/close/{id}(id=${acc.id})}" method="post" onsubmit="return confirm('Are you sure you want to close this account? Remaining funds will be transferred if selected.');" style="display:inline-flex; gap:0.5rem; align-items:center;">
+                                <select name="destinationAccountId" th:if="${acc.balance > 0}" class="form-control form-control-sm" style="min-width: 150px; padding:0.25rem;" required>
+                                    <option value="">Transfer funds to...</option>
+                                    <option th:each="destAcc : ${accounts}" th:if="${destAcc.id != acc.id}" th:value="${destAcc.id}" th:text="${destAcc.accountType + ' - ' + #strings.substring(destAcc.accountNumber, destAcc.accountNumber.length() - 4)}"></option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline" style="color:var(--danger-color);border-color:var(--danger-color);"><i class="fas fa-times-circle"></i> Close</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

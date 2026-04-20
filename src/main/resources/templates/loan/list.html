@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Loans - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-file-invoice-dollar"></i> My Loans</h1>
+            <a th:href="@{/loans/apply}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Apply</a>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+        
+        <!-- Interest & EMI Due Alert -->
+        <div th:if="${!#lists.isEmpty(loans)}" class="loan-alerts" style="margin-bottom: 1.5rem;">
+            <th:block th:each="loan : ${loans}">
+                <div th:if="${loan.status.toString() == 'APPROVED'}" class="alert alert-warning" style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <strong><i class="fas fa-bell" style="color: var(--warning-color);"></i> Action Due:</strong> 
+                        Next EMI amount of <strong th:text="${'₹' + #numbers.formatDecimal(loan.emiAmount, 1, 2)}">₹0.00</strong> 
+                        at <strong th:text="${loan.interestRate + '%'}">0%</strong> interest rate is due by 
+                        <strong th:text="${loan.nextEmiDueDate != null ? #temporals.format(loan.nextEmiDueDate, 'dd MMM yyyy') : #temporals.format(#temporals.createNow().plusMonths(1), 'dd MMM yyyy')}">05 May 2026</strong> 
+                        for Loan <span th:text="${loan.loanNumber}">LN000</span>.
+                    </div>
+                    <form th:action="@{/loans/pay-emi/{id}(id=${loan.loanNumber})}" method="post" style="display:flex; gap:0.5rem; align-items:center;">
+                        <select name="accountId" class="form-control form-control-sm" style="min-width: 150px; padding:0.25rem;" required>
+                            <option value="">Select Account</option>
+                            <option th:each="acc : ${accounts}" 
+                                    th:value="${acc.id}" 
+                                    th:text="${acc.accountType + ' - *****' + #strings.substring(acc.accountNumber, acc.accountNumber.length() - 4)}">Acc
+                            </option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Are you sure you want to deduct the EMI amount?');"><i class="fas fa-money-check-dollar"></i> Pay EMI</button>
+                    </form>
+                </div>
+            </th:block>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-list"></i> Loan Applications & Details</div>
+
+            <div th:if="${#lists.isEmpty(loans)}" class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>No loan applications found.</p>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(loans)}" class="table-detailed">
+                <thead>
+                    <tr>
+                        <th>Loan Information</th>
+                        <th>Amount Details</th>
+                        <th>Credit & Approval Info</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="loan : ${loans}">
+                        <td>
+                            <div><code th:text="${loan.loanNumber}" style="font-size: 1.1rem; font-weight: bold;">LN</code></div>
+                            <div style="margin-top: 0.25rem;"><span class="badge" style="background: var(--primary-color); color: white;" th:text="${loan.loanType}">HOME</span></div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                Applied: <span th:text="${#temporals.format(loan.appliedAt, 'dd MMM yyyy')}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;" th:text="'Principal: ₹' + ${#numbers.formatDecimal(loan.principalAmount, 1, 2)}">₹0</div>
+                            <div style="margin-top: 0.25rem;"><i class="fas fa-calendar-alt" style="color: var(--text-muted); width: 16px;"></i> <span th:text="${loan.tenureMonths + ' Months remaining'}">12</span></div>
+                            <div style="margin-top: 0.25rem;" th:if="${loan.status.toString() == 'APPROVED'}">
+                                <i class="fas fa-percentage" style="color: var(--text-muted); width: 16px;"></i> Interest: <strong th:text="${loan.interestRate + '%'}">0%</strong>
+                            </div>
+                            <div style="margin-top: 0.25rem;" th:if="${loan.status.toString() == 'APPROVED'}">
+                                <i class="fas fa-money-bill-wave" style="color: var(--text-muted); width: 16px;"></i> EMI: <strong th:text="'₹' + ${#numbers.formatDecimal(loan.emiAmount, 1, 2)}">0</strong>
+                            </div>
+                        </td>
+                        <td style="font-size: 0.9rem;">
+                            <div style="margin-bottom: 0.25rem;">
+                                Credit Score: <strong th:text="${loan.creditScore > 0 ? loan.creditScore : 'Pending'}">750</strong>
+                            </div>
+                            <div style="margin-bottom: 0.25rem;">
+                                Income Check: 
+                                <span th:if="${loan.incomeVerified}" style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Verified</span>
+                                <span th:unless="${loan.incomeVerified}" style="color: var(--danger-color);"><i class="fas fa-times-circle"></i> Failed</span>
+                            </div>
+                            <div>
+                                Background Check: 
+                                <span th:if="${loan.backgroundCheckPassed}" style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Passed</span>
+                                <span th:unless="${loan.backgroundCheckPassed}" style="color: var(--danger-color);"><i class="fas fa-times-circle"></i> Failed</span>
+                            </div>
+                        </td>
+                        <td class="text-center" style="vertical-align: middle;">
+                            <span class="badge" th:classappend="${loan.status.toString() == 'APPROVED' ? 'badge-success' : (loan.status.toString() == 'REJECTED' ? 'badge-danger' : (loan.status.toString() == 'CLOSED' ? 'badge-info' : ''))}" 
+                                  th:text="${loan.status}" style="font-size: 0.9rem; padding: 0.5rem 1rem;">PENDING</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

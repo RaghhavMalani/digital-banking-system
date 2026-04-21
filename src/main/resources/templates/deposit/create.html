@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Create Deposit - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-piggy-bank"></i> Create Deposit</h1>
+            <a th:href="@{/deposits}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('fd')"><i class="fas fa-lock"></i> Fixed</button>
+            <button class="tab" onclick="switchTab('rd')"><i class="fas fa-rotate"></i> Recurring</button>
+        </div>
+
+        <div id="tab-fd" class="tab-content active">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-lock"></i> Fixed Deposit</div>
+                <form th:action="@{/deposits/create/fd}" method="post">
+                    <div class="form-group">
+                        <label for="fd-account">Source Account</label>
+                        <select id="fd-account" name="accountId" class="form-control" required>
+                            <option value="">Select account</option>
+                            <option th:each="acc : ${accounts}"
+                                    th:value="${acc.id}"
+                                    th:text="${acc.accountType + ' - ' + acc.accountNumber + ' (₹' + #numbers.formatDecimal(acc.balance, 1, 2) + ')'}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fd-amount">Amount (₹)</label>
+                            <input type="number" id="fd-amount" name="amount" class="form-control" min="1000" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="fd-tenure">Tenure (Months)</label>
+                            <select id="fd-tenure" name="tenureMonths" class="form-control" required>
+                                <option value="">Select tenure</option>
+                                <option value="3">3 Months</option>
+                                <option value="6">6 Months</option>
+                                <option value="12">12 Months (6.50%)</option>
+                                <option value="24">24 Months (7.00%)</option>
+                                <option value="60">60 Months (7.25%)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Create</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="tab-rd" class="tab-content">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-rotate"></i> Recurring Deposit</div>
+                <form th:action="@{/deposits/create/rd}" method="post">
+                    <div class="form-group">
+                        <label for="rd-account">Source Account</label>
+                        <select id="rd-account" name="accountId" class="form-control" required>
+                            <option value="">Select account</option>
+                            <option th:each="acc : ${accounts}"
+                                    th:value="${acc.id}"
+                                    th:text="${acc.accountType + ' - ' + acc.accountNumber + ' (₹' + #numbers.formatDecimal(acc.balance, 1, 2) + ')'}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rd-amount">Monthly Installment (₹)</label>
+                            <input type="number" id="rd-amount" name="monthlyAmount" class="form-control" min="500" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="rd-tenure">Tenure (Months)</label>
+                            <select id="rd-tenure" name="tenureMonths" class="form-control" required>
+                                <option value="">Select tenure</option>
+                                <option value="6">6 Months</option>
+                                <option value="12">12 Months (6.00%)</option>
+                                <option value="24">24 Months (6.50%)</option>
+                                <option value="60">60 Months (7.00%)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Create</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+function switchTab(tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

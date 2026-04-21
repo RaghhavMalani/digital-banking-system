@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('All Transactions - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-list-ul"></i> All Transactions</h1>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+
+        <div class="card">
+            <div class="card-header justify-between">
+                <span><i class="fas fa-history"></i> Full History</span>
+                <span style="font-size: 0.8rem; font-weight:normal; color: var(--text-muted);"
+                      th:text="${#lists.size(transactions)} + ' total records'">0 records</span>
+            </div>
+
+            <div th:if="${#lists.isEmpty(transactions)}" class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>No transactions found on any of your accounts.</p>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(transactions)}">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Reference</th>
+                        <th>Description</th>
+                        <th class="text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="txn : ${transactions}">
+                        <td th:text="${txn.timestamp != null} ? ${#temporals.format(txn.timestamp, 'dd MMM yyyy HH:mm')} : '-'">01 Jan</td>
+                        <td><span class="badge" th:text="${txn.type}">TRF</span></td>
+                        <td><code th:text="${txn.referenceId}">TXN0</code></td>
+                        <td th:text="${txn.description ?: '-'}">-</td>
+                        <td class="text-right font-medium">
+                            <span style="color: var(--black);" th:text="'₹' + ${#numbers.formatDecimal(txn.amount, 1, 2)}">₹0</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

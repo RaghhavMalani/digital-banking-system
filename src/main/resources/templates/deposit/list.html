@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Deposits - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-piggy-bank"></i> My Deposits</h1>
+            <a th:href="@{/deposits/create}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Deposit</a>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-list"></i> Deposit Portfolio</div>
+
+            <div th:if="${#lists.isEmpty(deposits)}" class="empty-state">
+                <i class="fas fa-vault"></i>
+                <p>No deposits found. Create one to start earning interest.</p>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(deposits)}">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Type</th>
+                        <th>Principal</th>
+                        <th>Rate</th>
+                        <th>Tenure</th>
+                        <th>Maturity Amt</th>
+                        <th>Maturity Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="dep : ${deposits}">
+                        <td><code th:text="${dep.depositNumber}">FD00</code></td>
+                        <td><span class="badge" th:text="${dep.depositType.name() == 'FIXED_DEPOSIT'} ? 'FD' : 'RD'">FD</span></td>
+                        <td th:text="'₹' + ${#numbers.formatDecimal(dep.principalAmount, 1, 2)}">₹0</td>
+                        <td th:text="${dep.interestRate + '%'}">6.5%</td>
+                        <td th:text="${dep.tenureMonths + ' m'}">12m</td>
+                        <td style="font-weight: 500;" th:text="'₹' + ${#numbers.formatDecimal(dep.maturityAmount, 1, 2)}">₹0</td>
+                        <td th:text="${dep.maturityDate}">2027-01-01</td>
+                        <td><span class="badge" th:text="${dep.status}">ACTIVE</span></td>
+                        <td>
+                            <form th:if="${dep.status.name() == 'ACTIVE'}"
+                                  th:action="@{/deposits/break/{num}(num=${dep.depositNumber})}" method="post"
+                                  onsubmit="return confirm('Break this deposit? Penalty applies.');">
+                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-hammer"></i> Break</button>
+                            </form>
+                            <span th:if="${dep.status.name() != 'ACTIVE'}">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

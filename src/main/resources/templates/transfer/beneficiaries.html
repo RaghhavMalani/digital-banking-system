@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Beneficiaries - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-users"></i> Beneficiaries</h1>
+            <a th:href="@{/transfers}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+
+        <div class="alert alert-info" style="margin-bottom: 1rem;">
+            <h5><i class="fas fa-info-circle"></i> Demo Beneficiaries</h5>
+            <p>You can use the following dummy accounts for testing transfers:</p>
+            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                <li><strong>John Doe</strong> - A/C: <code>1122334455667788</code> - IFSC: <code>HDFC0001</code> - Bank: HDFC Bank</li>
+                <li><strong>Alice Smith</strong> - A/C: <code>9988776655443322</code> - IFSC: <code>ICIC0002</code> - Bank: ICICI Bank</li>
+                <li><strong>Bob Builder</strong> - A/C: <code>5544332211009988</code> - IFSC: <code>SBIN0003</code> - Bank: State Bank of India</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-plus-circle"></i> Add New Beneficiary</div>
+            <form th:action="@{/transfers/beneficiaries/add}" th:object="${newBeneficiary}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Beneficiary Name</label>
+                        <input type="text" id="name" th:field="*{name}" class="form-control" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="nickname">Nickname (optional)</label>
+                        <input type="text" id="nickname" th:field="*{nickname}" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="accountNumber">Account Number</label>
+                        <input type="text" id="accountNumber" th:field="*{accountNumber}" class="form-control" required maxlength="16"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="ifscCode">IFSC Code</label>
+                        <input type="text" id="ifscCode" th:field="*{ifscCode}" class="form-control" required maxlength="11" style="text-transform: uppercase;"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="bankName">Bank Name</label>
+                    <input type="text" id="bankName" th:field="*{bankName}" class="form-control" required/>
+                </div>
+                <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Add Beneficiary</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-list"></i> Saved Beneficiaries</div>
+
+            <div th:if="${#lists.isEmpty(beneficiaries)}" class="empty-state">
+                <i class="fas fa-users-slash"></i>
+                <p>No beneficiaries added yet.</p>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(beneficiaries)}">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Account</th>
+                        <th>Bank</th>
+                        <th>IFSC</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ben : ${beneficiaries}">
+                        <td>
+                            <div style="font-weight: 500;" th:text="${ben.name}">Name</div>
+                            <div th:if="${ben.nickname}" style="font-size: 0.8em; color: var(--text-muted);" th:text="${ben.nickname}">Nick</div>
+                        </td>
+                        <td><code th:text="${ben.accountNumber}">0000</code></td>
+                        <td th:text="${ben.bankName}">SBI</td>
+                        <td><code th:text="${ben.ifscCode}">SBIN</code></td>
+                        <td>
+                            <form th:action="@{/transfers/beneficiaries/delete/{id}(id=${ben.id})}" method="post" onsubmit="return confirm('Remove this beneficiary?');">
+                                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

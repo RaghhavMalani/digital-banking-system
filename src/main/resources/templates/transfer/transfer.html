@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Fund Transfer - DigiBank')}"></head>
+<body>
+<div class="layout">
+    <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-money-bill-transfer"></i> Fund Transfer</h1>
+            <a th:href="@{/transfers/beneficiaries}" class="btn btn-outline btn-sm"><i class="fas fa-users-gear"></i> Manage Beneficiaries</a>
+        </div>
+
+        <div th:replace="~{fragments/header :: alerts}"></div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-paper-plane"></i> Initiate Transfer</div>
+            <form th:action="@{/transfers/execute}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sourceAccount">From Account</label>
+                        <select id="sourceAccount" name="sourceAccount" class="form-control" required>
+                            <option value="">Select source account</option>
+                            <option th:each="acc : ${accounts}"
+                                    th:value="${acc.accountNumber}"
+                                    th:text="${acc.accountType + ' - ' + acc.accountNumber + ' (₹' + #numbers.formatDecimal(acc.balance, 1, 2) + ')'}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="destinationAccount">To Account</label>
+                        <select id="destinationAccount" name="destinationAccount" class="form-control" required>
+                            <option value="">Select destination</option>
+                            <optgroup label="My Accounts">
+                                <option th:each="acc : ${accounts}"
+                                        th:value="${acc.accountNumber}"
+                                        th:text="${'Self (' + acc.accountType + ') - ' + acc.accountNumber}">
+                                </option>
+                            </optgroup>
+                            <optgroup label="Beneficiaries">
+                                <option th:each="ben : ${beneficiaries}"
+                                        th:value="${ben.accountNumber}"
+                                        th:text="${ben.name + ' - ' + ben.accountNumber + ' (' + ben.bankName + ')'}">
+                                </option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" name="amount" class="form-control"
+                               step="0.01" min="1" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="transferMode">Transfer Mode</label>
+                        <select id="transferMode" name="transferMode" class="form-control" required>
+                            <option th:each="mode : ${transferModes}"
+                                    th:value="${mode.name()}"
+                                    th:text="${mode.name()}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description (optional)</label>
+                    <input type="text" id="description" name="description" class="form-control"/>
+                </div>
+
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; padding: 1rem; background: var(--gray-50); border: var(--border);">
+                    <strong><i class="fas fa-circle-info"></i> Transfer Limits:</strong><br/>
+                    IMPS: ₹1 – ₹5,00,000 | Fee: ₹2.50 – ₹15<br/>
+                    NEFT: ₹1 – ₹10,00,000 | Fee: ₹2 – ₹20<br/>
+                    RTGS: ₹2,00,000 – ₹1,00,00,000 | Fee: ₹20 – ₹40
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Transfer Now</button>
+            </form>
+        </div>
+    </main>
+</div>
+</body>
+</html>
